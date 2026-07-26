@@ -1,0 +1,19 @@
+data_generation:
+  num_users: 100
+  num_service_accounts: 10
+  num_devices: 150
+  num_days: 30
+  events_per_day_per_user_mean: 50
+  events_per_day_per_user_std: 15
+  random_seed: 42
+  out_file: "data/synthetic_logs.csv"
+
+  # Probabilities of attacks (imbalanced classes)
+  attack_probabilities:
+    Brute Force: 0.005
+    Impossible Travel: 0.002
+    Credential Stuffing: 0.003
+    Lateral Movement: 0.004
+    Device Spoofing: 0.002
+    Low-and-Slow Exfiltration: 0.003
+    Insider Drift: 0.001

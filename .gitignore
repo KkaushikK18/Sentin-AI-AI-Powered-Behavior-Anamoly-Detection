@@ -1,0 +1,38 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Heavy Data Files (GitHub >100MB limit & Timeout Prevention)
+data/synthetic_logs_features.csv
+data/synthetic_logs.csv
+
+# Optional: Ignore saved models if they get too large (Uncomment if needed)
+saved_models/*.pt
+
+# Streamlit specific
+.streamlit/
