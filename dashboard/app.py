@@ -219,7 +219,7 @@ def main():
         if entity_search:
             query = query[query['entity_id'].str.contains(entity_search, case=False)]
             
-        st.markdown(f"**Showing {len(query):,} events**")
+        st.markdown(f"**Found {len(query):,} events (Showing latest 500 for performance)**")
         
         display_cols = ['timestamp', 'entity_id', 'entity_type', 'source_ip', 'geo_location', 'attack_type', 'risk_score', 'risk_level']
         
@@ -228,7 +228,9 @@ def main():
             color = '#ef4444' if val == 'Critical' else '#f59e0b' if val == 'Medium' else '#10b981'
             return f'color: {color}; font-weight: bold;'
             
-        st.dataframe(query[display_cols].sort_values('timestamp', ascending=False).style.map(color_risk, subset=['risk_level']), 
+        # Limit to 500 rows to prevent browser lag
+        display_df = query[display_cols].sort_values('timestamp', ascending=False).head(500)
+        st.dataframe(display_df.style.map(color_risk, subset=['risk_level']), 
                      use_container_width=True, height=500)
 
     elif page == "👤 Entity Investigation":
