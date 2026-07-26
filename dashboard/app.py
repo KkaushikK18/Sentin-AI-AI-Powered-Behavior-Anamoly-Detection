@@ -111,7 +111,7 @@ def load_data():
         df['risk_score'] = np.where(df['label'] == 1, 
                                     np.random.uniform(75, 99, len(df)), 
                                     normal_scores)
-        df['risk_level'] = pd.cut(df['risk_score'], bins=[0, 30, 74, 100], labels=['Low', 'Medium', 'Critical'])
+        df['risk_level'] = pd.cut(df['risk_score'], bins=[0, 30, 74, 100], labels=['Low', 'Medium', 'Critical']).astype(str)
         
         return df
     except Exception as e:
