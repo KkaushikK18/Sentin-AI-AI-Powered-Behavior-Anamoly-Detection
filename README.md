@@ -1,5 +1,11 @@
 # 🛡️ SentinAI — AI-Powered Behavioral Anomaly Detection for Cybersecurity
 
+---
+
+### LIVE DASHBOARD LINK - https://behavior-anamoly-detection.streamlit.app/
+
+---
+
 > **Learn what's normal. Detect what's not. Explain why.**
 
 Traditional cybersecurity systems rely on signature-based rules and known malware databases. They fail catastrophically against **Zero-Day attacks**, **Insider Threats**, **Credential Compromise**, and **Low-and-Slow Data Exfiltration**.
@@ -210,12 +216,6 @@ SentinAI integrates **Google Gemini 1.5 Flash** to automatically translate raw S
 - **Graph Neural Networks**: Model lateral movement as a graph problem (entities as nodes, access logs as edges)
 - **Self-Supervised Pre-Training**: BERT-style masked event prediction on billions of unlabelled logs
 - **SOAR Integration**: Auto-remediation webhooks (disable accounts, revoke tokens) for high-confidence alerts
-
----
-
-## 📄 License
-
-This project was built for the AI/ML Hackathon.
 
 ---
 
