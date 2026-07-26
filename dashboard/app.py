@@ -102,12 +102,16 @@ def load_data():
             df = df.sample(50000, random_state=42).sort_values('timestamp')
             
         # Simulate PyTorch Inference Risk Scores for the UI
-        # (High risk for anomalies, low for normal + some noise)
         np.random.seed(42)
+        # Anomalies are critical (75-99), 5% of normal are medium (30-74), rest are low (1-29)
+        normal_scores = np.where(np.random.rand(len(df)) < 0.05, 
+                               np.random.uniform(31, 74, len(df)), 
+                               np.random.uniform(1, 29, len(df)))
+                               
         df['risk_score'] = np.where(df['label'] == 1, 
                                     np.random.uniform(75, 99, len(df)), 
-                                    np.random.uniform(1, 30, len(df)))
-        df['risk_level'] = pd.cut(df['risk_score'], bins=[0, 30, 75, 100], labels=['Low', 'Medium', 'Critical'])
+                                    normal_scores)
+        df['risk_level'] = pd.cut(df['risk_score'], bins=[0, 30, 74, 100], labels=['Low', 'Medium', 'Critical'])
         
         return df
     except Exception as e:
@@ -203,8 +207,8 @@ def main():
         st.markdown("Filter and search through the live event stream to identify malicious activity.")
         
         c1, c2, c3 = st.columns(3)
-        risk_filter = c1.multiselect("Risk Level", ['Low', 'Medium', 'Critical'], default=['Critical', 'Medium'])
-        attack_filter = c2.multiselect("Attack Classification", df['attack_type'].unique(), default=[a for a in df['attack_type'].unique() if a != 'None'])
+        risk_filter = c1.multiselect("Risk Level", ['Low', 'Medium', 'Critical'], default=['Low', 'Medium', 'Critical'])
+        attack_filter = c2.multiselect("Attack Classification", df['attack_type'].unique(), default=[a for a in df['attack_type'].unique()])
         entity_search = c3.text_input("Search Entity ID (e.g. ENT_00010)")
         
         query = filtered_df.copy()
