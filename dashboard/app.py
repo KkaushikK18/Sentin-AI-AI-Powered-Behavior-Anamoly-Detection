@@ -306,6 +306,63 @@ def main():
             st.plotly_chart(fig_timeline, use_container_width=True)
             
         st.markdown("---")
+        st.markdown("### Lateral Movement (Network Graph)")
+        st.markdown("Visualizing the attack path from Origin -> IP -> Account -> Target Resource.")
+        
+        # Build Sankey Diagram
+        # Nodes: Geo -> IP -> Entity -> Resource
+        nodes = []
+        nodes.extend(entity_df['geo_location'].unique())
+        nodes.extend(entity_df['source_ip'].unique())
+        nodes.extend([selected_entity])
+        nodes.extend(entity_df['resource_accessed'].unique())
+        
+        node_indices = {name: i for i, name in enumerate(nodes)}
+        
+        sources = []
+        targets = []
+        values = []
+        
+        # Link Geo -> IP
+        geo_ip = entity_df.groupby(['geo_location', 'source_ip']).size().reset_index(name='count')
+        for _, row in geo_ip.iterrows():
+            sources.append(node_indices[row['geo_location']])
+            targets.append(node_indices[row['source_ip']])
+            values.append(row['count'])
+            
+        # Link IP -> Entity
+        ip_entity = entity_df.groupby(['source_ip']).size().reset_index(name='count')
+        for _, row in ip_entity.iterrows():
+            sources.append(node_indices[row['source_ip']])
+            targets.append(node_indices[selected_entity])
+            values.append(row['count'])
+            
+        # Link Entity -> Resource
+        entity_res = entity_df.groupby(['resource_accessed']).size().reset_index(name='count')
+        for _, row in entity_res.iterrows():
+            sources.append(node_indices[selected_entity])
+            targets.append(node_indices[row['resource_accessed']])
+            values.append(row['count'])
+            
+        fig_sankey = go.Figure(data=[go.Sankey(
+            node = dict(
+              pad = 15,
+              thickness = 20,
+              line = dict(color = "black", width = 0.5),
+              label = nodes,
+              color = "#38bdf8"
+            ),
+            link = dict(
+              source = sources,
+              target = targets,
+              value = values,
+              color = "rgba(239, 68, 68, 0.4)" # Red translucent links for malicious vibe
+          ))])
+        
+        fig_sankey.update_layout(height=400, margin=dict(l=0, r=0, t=10, b=10), paper_bgcolor='rgba(0,0,0,0)', font={'color': "white"})
+        st.plotly_chart(fig_sankey, use_container_width=True)
+        
+        st.markdown("---")
         st.markdown("### Explainability (SHAP Insights)")
         st.info("The Deep Learning model flagged the following sequence. Here is the feature attribution explaining WHY it was flagged.")
         
