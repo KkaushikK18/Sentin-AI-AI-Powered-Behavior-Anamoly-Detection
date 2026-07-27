@@ -136,9 +136,20 @@ def main():
                              "📊 Model Analytics"])
                              
     st.sidebar.divider()
-    st.sidebar.markdown("### System Status")
-    st.sidebar.success("🟢 LSTM Engine: Online")
-    st.sidebar.success("🟢 Data Stream: Active")
+    st.sidebar.markdown("### System Controls")
+    live_mode = st.sidebar.toggle("🔴 Live Streaming Mode", help="Simulate real-time log ingestion")
+    
+    if live_mode:
+        if 'sim_idx' not in st.session_state:
+            st.session_state.sim_idx = int(len(df) * 0.95) # Start at 95% of data
+            
+        st.session_state.sim_idx += np.random.randint(10, 100) # Ingest new logs per tick
+        if st.session_state.sim_idx > len(df):
+            st.session_state.sim_idx = int(len(df) * 0.95) # Loop
+            
+        df = df.iloc[:st.session_state.sim_idx]
+        
+    st.sidebar.success(f"🟢 Events Monitored: {len(df):,}")
 
     # Filter Global Data
     time_range = st.sidebar.slider("Time Range (Days)", 1, 30, 30)
@@ -201,6 +212,11 @@ def main():
             st.plotly_chart(fig_bar, use_container_width=True)
         else:
             st.success("No geographical anomalies detected.")
+            
+        if live_mode:
+            import time
+            time.sleep(2)
+            st.rerun()
 
     elif page == "🔎 Threat Hunting":
         st.title("Threat Hunting")
