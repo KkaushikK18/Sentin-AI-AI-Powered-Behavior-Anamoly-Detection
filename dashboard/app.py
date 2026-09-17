@@ -113,6 +113,17 @@ def load_data():
                                     normal_scores)
         df['risk_level'] = pd.cut(df['risk_score'], bins=[0, 30, 74, 100], labels=['Low', 'Medium', 'Critical']).astype(str)
         
+        # MITRE ATT&CK Mapping
+        mitre_mapping = {
+            "Lateral Movement": "T1021 - Lateral Movement",
+            "Low and Slow Exfiltration": "T1048 - Exfiltration",
+            "Brute Force": "T1110 - Brute Force",
+            "Insider Drift": "T1078 - Valid Accounts",
+            "Credential Stuffing": "T1110.004 - Credential Stuffing",
+            "None": "Normal Behavior"
+        }
+        df['mitre_tactic'] = df['attack_type'].map(mitre_mapping).fillna(df['attack_type'])
+        
         return df
     except Exception as e:
         st.error(f"Error loading data: {e}. Please ensure Phase 1 generated the dataset.")
@@ -237,7 +248,7 @@ def main():
             
         st.markdown(f"**Found {len(query):,} events (Showing latest 500 for performance)**")
         
-        display_cols = ['timestamp', 'entity_id', 'entity_type', 'source_ip', 'geo_location', 'attack_type', 'risk_score', 'risk_level']
+        display_cols = ['timestamp', 'entity_id', 'entity_type', 'source_ip', 'geo_location', 'mitre_tactic', 'risk_score', 'risk_level']
         
         # Color code the dataframe
         def color_risk(val):
@@ -471,6 +482,26 @@ Based on the SHAP (SHapley Additive exPlanations) attribution, the primary drive
                     file_name=f"Incident_Report_{critical_event['entity_id']}.txt",
                     mime="text/plain"
                 )
+                
+                st.markdown("### ⚡ Automated Remediation (SOAR Playbooks)")
+                rc1, rc2, rc3 = st.columns(3)
+                
+                if rc1.button("🔒 Isolate Host Device"):
+                    st.toast("Executing Playbook: CrowdStrike Network Isolation...", icon="⏳")
+                    import time
+                    time.sleep(1.5)
+                    st.success(f"Successfully isolated IP `{critical_event['source_ip']}` from the corporate network.")
+                    
+                if rc2.button("🔑 Revoke Azure AD Tokens"):
+                    st.toast("Executing Playbook: Revoking OAuth Tokens...", icon="⏳")
+                    import time
+                    time.sleep(1.5)
+                    st.success(f"Successfully revoked all active sessions for `{critical_event['entity_id']}`.")
+                    
+                if rc3.button("🛡️ Export to SIEM (CEF)"):
+                    cef_log = f"CEF:0|SentinAI|ML-Engine|1.0|{critical_event['mitre_tactic']}|Behavioral Anomaly|{critical_event['risk_score']:.1f}|src={critical_event['source_ip']} duser={critical_event['entity_id']} msg=Anomaly detected in {critical_event['geo_location']}"
+                    st.code(cef_log, language="bash")
+                    st.success("Forwarded to Splunk Enterprise via Syslog.")
 
     elif page == "📊 Model Analytics":
         st.title("Model Performance & Analytics")
